@@ -14,10 +14,13 @@ public class PlayerManager : MonoBehaviour
    public int money;
    public int level=1;
    public int capacity;
+   public int xp;
    [SerializeField] Renderer render;
    [SerializeField] Material[] materials;
    [SerializeField] TMP_Text countText;
    [SerializeField] TMP_Text  moneyCount;
+   [SerializeField] TMP_Text  levelCount;
+   [SerializeField] Slider sliderMoney;
    public Vector3 scaledMovement;
    public float lastTargetY;
    Transform lastTarget;
@@ -61,10 +64,17 @@ public class PlayerManager : MonoBehaviour
             money += npcCount*10;
             npcCount= 0;
             countText.text = npcCount.ToString()+"/"+capacity;
-            moneyCount.text = money.ToString();
+            
             foreach(GameObject npc in npcsDefeats){
                 Destroy(npc);
             }
+            if(money>=xp){
+                money= money- xp;
+                SetLevel();
+            }
+            moneyCount.text = money.ToString()+"/"+xp;
+            sliderMoney.maxValue = xp;
+            sliderMoney.value = money;
         }
         
     }
@@ -98,27 +108,36 @@ public class PlayerManager : MonoBehaviour
             case 1:
                 capacity = 1;
                 render.material= materials[0];
+                xp=20;
                 break;
 
             case 2:
                 capacity = 2;
                 render.material= materials[1];
+                xp=40;
                 break;
 
             case 3:
                 capacity = 3;
                 render.material= materials[2];
+                xp=100;
                 break;
 
             default:
                 Debug.LogWarning("Nível desconhecido. Não foi possível configurar.");
                 break;
         }
+        countText.text = npcCount.ToString()+"/"+capacity;
+        moneyCount.text = money.ToString()+"/"+xp;
+        sliderMoney.maxValue = xp;
+        sliderMoney.value = money;
+        levelCount.text = "Level: "+ level.ToString();
+        
     }
     public void SetLevel(){
         level++;
         ConfigLevel(level);
-        countText.text = npcCount.ToString()+"/"+capacity;
+        
     }
 
     private void JoinNPCs()
