@@ -30,8 +30,18 @@ public class PlayerManager : MonoBehaviour
         Player.transform.LookAt(Player.transform.position + scaledMovement, Vector3.up);
         // Move o jogador na direção calculada
         Player.Move(scaledMovement);
-
+        
+        
         // Atualiza a animação com base no movimento
         anim.SetBool("Moving", scaledMovement != Vector3.zero);
+        if( scaledMovement != Vector3.zero){
+            anim.ResetTrigger("Stabling"); 
+            anim.SetTrigger("StopStable");
+        }
+        
+    }
+    public void Stable(){
+         anim.SetTrigger("Stabling");
+          anim.ResetTrigger("StopStable");
     }
 }
