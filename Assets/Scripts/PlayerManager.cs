@@ -24,7 +24,9 @@ public class PlayerManager : MonoBehaviour
    public Vector3 scaledMovement;
    public float lastTargetY;
    Transform lastTarget;
+   Rigidbody rb;
    public List<GameObject> npcsDefeats;
+   private Vector3 currentVelocity = Vector3.zero;// Velocidade da suavização
    void Start()
    {
         // Encontra os componentes
@@ -33,10 +35,26 @@ public class PlayerManager : MonoBehaviour
          Player = GetComponent<UnityEngine.AI.NavMeshAgent>();
          ConfigLevel(level);
          countText.text = npcCount.ToString()+"/"+capacity;
+          //Invoke("teste", 2f);
+         
    }
    private void Update()
     {
         Move();
+    }
+    public void teste(){
+        Debug.Log("in");
+         //GetComponent<Rigidbody>().AddForce(transform.forward * 150, ForceMode.Impulse);
+         Vector3 direcaoDoJogador = transform.forward;
+
+        // Calcula a nova posição adicionando o deslocamento à posição atual do jogador
+        Vector3 novaPosicao = transform.position + direcaoDoJogador * 5;
+
+        // Atualiza a posição do jogador para a nova posição
+        transform.position = novaPosicao;
+        transform.position = Vector3.SmoothDamp(transform.position, novaPosicao, ref currentVelocity, 0.5f);// Suaviza o movimento da câmera
+
+        
     }
     public void Move(){
          // Calcula o movimento baseado na entrada do joystick
@@ -91,9 +109,28 @@ public class PlayerManager : MonoBehaviour
         }
         if(target.tag =="MoneyArea")
         {
-            GainMoney();
-            //Invoke("DestroyNPC", 0.7f);
+            anim.SetTrigger("Throw"); 
+           
+            Invoke("Throw", 0.5f);
+            
+            
         }
+    }
+    void Throw(){
+        foreach(GameObject npc in npcsDefeats)
+            {
+                rb = npc.GetComponent<Rigidbody>();
+                if(rb!=null){
+                    npc.GetComponent<SmoothCameraFollow>().enabled=false;
+                    npc.GetComponent<Animator>().enabled=false;
+                    rb.useGravity=true;
+                    Vector3 direcaoDoJogador = transform.forward;
+                     Vector3 vetorDeDeslocamento = direcaoDoJogador * 3;
+                    npc.transform.Translate(vetorDeDeslocamento, Space.World);
+                    
+                }
+            }
+            Invoke("GainMoney", 1f);
     }
     void DestroyNPC()
     {
