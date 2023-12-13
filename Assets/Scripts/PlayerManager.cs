@@ -18,6 +18,10 @@ public class PlayerManager : MonoBehaviour
    [SerializeField] Material[] materials;
    [SerializeField] TMP_Text countText;
    [SerializeField] TMP_Text  moneyCount;
+   public Vector3 scaledMovement;
+   public float lastTargetY;
+   Transform lastTarget;
+   public List<GameObject> npcsDefeats;
    void Start()
    {
         // Encontra os componentes
@@ -33,7 +37,7 @@ public class PlayerManager : MonoBehaviour
     }
     public void Move(){
          // Calcula o movimento baseado na entrada do joystick
-        Vector3 scaledMovement = Player.speed * Time.deltaTime * new Vector3(
+         scaledMovement = Player.speed * Time.deltaTime * new Vector3(
             playerTouchMovement.MovementAmount.x,
             0,
             playerTouchMovement.MovementAmount.y
@@ -58,6 +62,9 @@ public class PlayerManager : MonoBehaviour
             npcCount= 0;
             countText.text = npcCount.ToString()+"/"+capacity;
             moneyCount.text = money.ToString();
+            foreach(GameObject npc in npcsDefeats){
+                Destroy(npc);
+            }
         }
         
     }
@@ -68,7 +75,7 @@ public class PlayerManager : MonoBehaviour
         {
             if(npcCount<capacity){
                 Stable();
-                Invoke("DestroyNPC", 0.7f);
+                Invoke("JoinNPCs", 0.7f);
             }
             
         }
@@ -80,8 +87,6 @@ public class PlayerManager : MonoBehaviour
     }
     void DestroyNPC()
     {
-        npcCount++;
-        countText.text = npcCount.ToString()+"/"+capacity;
         Destroy(target);
     }
 
@@ -91,17 +96,17 @@ public class PlayerManager : MonoBehaviour
         switch (level)
         {
             case 1:
-                capacity = 2;
+                capacity = 1;
                 render.material= materials[0];
                 break;
 
             case 2:
-                capacity = 3;
+                capacity = 2;
                 render.material= materials[1];
                 break;
 
             case 3:
-                capacity = 4;
+                capacity = 3;
                 render.material= materials[2];
                 break;
 
@@ -114,6 +119,32 @@ public class PlayerManager : MonoBehaviour
         level++;
         ConfigLevel(level);
         countText.text = npcCount.ToString()+"/"+capacity;
+    }
+
+    private void JoinNPCs()
+    {
+        npcCount++;
+        countText.text = npcCount.ToString()+"/"+capacity;
+
+        if(npcCount==1){
+            lastTargetY = this.transform.position.y;
+            npcsDefeats = new List<GameObject>();
+        }else{
+            lastTargetY = lastTarget.position.y;
+        }
+        
+        lastTarget = target.transform;
+
+        target.tag = "Untagged";
+        Vector3 novaPosicao = new Vector3(target.transform.position.x, lastTargetY +3f, target.transform.position.z);
+
+            // Atribua a nova posição ao objeto em cima
+        target.transform.rotation = Quaternion.identity;
+        target.transform.position = novaPosicao;
+        target.GetComponent<Animator>().SetTrigger("Defeat");
+        target.GetComponent<SmoothCameraFollow>().enabled=true;
+        target.GetComponent<SmoothCameraFollow>().ConfigLevel(npcCount);
+        npcsDefeats.Add(target);
     }
     
 }
