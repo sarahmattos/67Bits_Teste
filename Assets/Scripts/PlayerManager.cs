@@ -28,8 +28,11 @@ public class PlayerManager : MonoBehaviour
     // UI
     [SerializeField] TMP_Text countText;
     [SerializeField] TMP_Text moneyCount;
+    [SerializeField] TMP_Text moneyCountUI;
     [SerializeField] TMP_Text levelCount;
+    [SerializeField] TMP_Text levelCountUI;
     [SerializeField] Slider sliderMoney;
+    [SerializeField] Image backgrounSlider;
 
     // Materiais
     [SerializeField] Renderer render;
@@ -103,6 +106,7 @@ public class PlayerManager : MonoBehaviour
             }
 
             moneyCount.text = money.ToString() + "/" + xp;
+            moneyCountUI.text = money.ToString() + "/" + xp;
             sliderMoney.maxValue = xp;
             sliderMoney.value = money;
         }
@@ -154,18 +158,21 @@ public class PlayerManager : MonoBehaviour
             case 1:
                 capacity = 1;
                 render.material = materials[0];
+                backgrounSlider.color = Color.white;
                 xp = 20;
                 break;
 
             case 2:
                 capacity = 2;
                 render.material = materials[1];
+                backgrounSlider.color = Color.yellow;
                 xp = 40;
                 break;
 
             case 3:
                 capacity = 3;
                 render.material = materials[2];
+                backgrounSlider.color = Color.blue;
                 xp = 100;
                 break;
 
@@ -176,9 +183,11 @@ public class PlayerManager : MonoBehaviour
 
         countText.text = npcCount.ToString() + "/" + capacity;
         moneyCount.text = money.ToString() + "/" + xp;
+        moneyCountUI.text = money.ToString() + "/" + xp;
         sliderMoney.maxValue = xp;
         sliderMoney.value = money;
         levelCount.text = "Level: " + level.ToString();
+        levelCountUI.text = "Level: " + level.ToString();
     }
 
     public void SetLevel()
