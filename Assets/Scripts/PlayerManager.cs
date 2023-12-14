@@ -22,6 +22,7 @@ public class PlayerManager : MonoBehaviour
     public int xp;
     public float lastTargetY;
     public Vector3 scaledMovement;
+    bool victory;
     Transform lastTarget;
     public List<GameObject> npcsDefeats;
 
@@ -50,7 +51,7 @@ public class PlayerManager : MonoBehaviour
 
     private void Update()
     {
-        Move();
+        if(!victory)Move();
     }
 
     public void Move()
@@ -177,7 +178,8 @@ public class PlayerManager : MonoBehaviour
                 break;
 
             default:
-                Debug.LogWarning("Nível desconhecido. Não foi possível configurar.");
+                victory=true;
+                anim.SetTrigger("Tweark");
                 break;
         }
 
@@ -214,7 +216,7 @@ public class PlayerManager : MonoBehaviour
 
         lastTarget = target.transform;
 
-        Vector3 novaPosicao = new Vector3(target.transform.position.x, lastTargetY + 3f, target.transform.position.z);
+        Vector3 novaPosicao = new Vector3(target.transform.position.x, lastTargetY + 2f, target.transform.position.z);
 
         npc.transform.rotation = Quaternion.identity;
         npc.transform.position = novaPosicao;
