@@ -6,159 +6,144 @@ using TMPro;
 
 public class PlayerManager : MonoBehaviour
 {
-   private Animator anim;// Referência do animator do player
-   private PlayerTouchMovement playerTouchMovement;// Referência do script de touch
-   private UnityEngine.AI.NavMeshAgent Player;// Referência do componente de navegação do player
-   GameObject target;
-   public int npcCount;
-   public int money;
-   public int level=1;
-   public int capacity;
-   public int xp;
-   [SerializeField] Renderer render;
-   [SerializeField] Material[] materials;
-   [SerializeField] TMP_Text countText;
-   [SerializeField] TMP_Text  moneyCount;
-   [SerializeField] TMP_Text  levelCount;
-   [SerializeField] Slider sliderMoney;
-   public Vector3 scaledMovement;
-   public float lastTargetY;
-   Transform lastTarget;
-   Rigidbody rb;
-   public List<GameObject> npcsDefeats;
-   private Vector3 currentVelocity = Vector3.zero;// Velocidade da suavização
-   GameObject npc;
-   void Start()
-   {
+    // Referências
+    private Animator anim;  // Referência do animator do player
+    private PlayerTouchMovement playerTouchMovement;  // Referência do script de touch
+    private UnityEngine.AI.NavMeshAgent Player;  // Referência do componente de navegação do player
+    GameObject target;
+    Rigidbody rb;  // Rigidbody temporário
+    GameObject npc;
+
+    // Variáveis de jogo
+    public int npcCount;
+    public int money;
+    public int level = 1;
+    public int capacity;
+    public int xp;
+    public float lastTargetY;
+    public Vector3 scaledMovement;
+    Transform lastTarget;
+    public List<GameObject> npcsDefeats;
+
+    // UI
+    [SerializeField] TMP_Text countText;
+    [SerializeField] TMP_Text moneyCount;
+    [SerializeField] TMP_Text levelCount;
+    [SerializeField] Slider sliderMoney;
+
+    // Materiais
+    [SerializeField] Renderer render;
+    [SerializeField] Material[] materials;
+
+    void Start()
+    {
         // Encontra os componentes
-         anim = GetComponent<Animator>();
-         playerTouchMovement = GetComponent<PlayerTouchMovement>();
-         Player = GetComponent<UnityEngine.AI.NavMeshAgent>();
-         ConfigLevel(level);
-         countText.text = npcCount.ToString()+"/"+capacity;
-        //Invoke("teste", 2f);
-         
-   }
-   private void Update()
+        anim = GetComponent<Animator>();
+        playerTouchMovement = GetComponent<PlayerTouchMovement>();
+        Player = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        ConfigLevel(level);
+        countText.text = npcCount.ToString() + "/" + capacity;
+    }
+
+    private void Update()
     {
         Move();
     }
-    public void teste(){
-        Debug.Log("in");
-         //GetComponent<Rigidbody>().AddForce(transform.forward * 150, ForceMode.Impulse);
-        /* Vector3 direcaoDoJogador = transform.forward;
 
-        // Calcula a nova posição adicionando o deslocamento à posição atual do jogador
-        Vector3 novaPosicao = transform.position + direcaoDoJogador * 5;
-
-        // Atualiza a posição do jogador para a nova posição
-        transform.position = novaPosicao;
-        transform.position = Vector3.SmoothDamp(transform.position, novaPosicao, ref currentVelocity, 0.5f);// Suaviza o movimento da câmera
-    */
-        //Vector3 forceToAdd = transform.forward * 30f +transform.up * 12f;
-        //rb.useGravity=true;
-        //rb.AddForce(forceToAdd, ForceMode.Impulse);
-        
-    }
-    public void Move(){
-         // Calcula o movimento baseado na entrada do joystick
-         scaledMovement = Player.speed * Time.deltaTime * new Vector3(
+    public void Move()
+    {
+        // Calcula o movimento baseado na entrada do joystick
+        scaledMovement = Player.speed * Time.deltaTime * new Vector3(
             playerTouchMovement.MovementAmount.x,
             0,
             playerTouchMovement.MovementAmount.y
         );
 
-         // Faz com que o jogador olhe na direção do movimento
+        // Faz com que o jogador olhe na direção do movimento
         Player.transform.LookAt(Player.transform.position + scaledMovement, Vector3.up);
         // Move o jogador na direção calculada
         Player.Move(scaledMovement);
-        
-        
+
         // Atualiza a animação com base no movimento
         anim.SetBool("Moving", scaledMovement != Vector3.zero);
-        
     }
-    public void Stable(){
-        
-         rb = npc.GetComponent<Rigidbody>();
-         
-        if(rb!=null)
+
+    public void Stable()
+    {
+        rb = npc.GetComponent<Rigidbody>();
+
+        if (rb != null)
         {
-            //npc.GetComponent<Animator>().enabled=false;
-            //rb.useGravity=true;
-            //Vector3 forceToAdd = transform.forward * 20f +transform.up * 50;
-            //rb.AddForce(forceToAdd, ForceMode.Impulse);
-            
-            Vector3 forceToAdd = transform.forward * 20f +transform.up * 20;
+            Vector3 forceToAdd = transform.forward * 20f + transform.up * 20;
             npc.GetComponent<RagDollPhysics>().RagDollEnable(forceToAdd);
         }
-        
-        Invoke("JoinNPCs", 1f);
+
+        Invoke("JoinNPCs", 2f);
     }
-    public void GainMoney(){
-        if(npcCount>0){
-            money += npcCount*10;
-            npcCount= 0;
-            countText.text = npcCount.ToString()+"/"+capacity;
-            
-            foreach(GameObject npc in npcsDefeats){
+
+    public void GainMoney()
+    {
+        if (npcCount > 0)
+        {
+            money += npcCount * 10;
+            npcCount = 0;
+            countText.text = npcCount.ToString() + "/" + capacity;
+            sliderMoney.maxValue = xp;
+            sliderMoney.value = money;
+        
+            foreach (GameObject npc in npcsDefeats)
+            {
                 Destroy(npc);
             }
-            if(money>=xp){
-                money= money- xp;
+
+            if (money >= xp)
+            {
+                money = money - xp;
                 SetLevel();
             }
-            moneyCount.text = money.ToString()+"/"+xp;
+
+            moneyCount.text = money.ToString() + "/" + xp;
             sliderMoney.maxValue = xp;
             sliderMoney.value = money;
         }
-        
     }
+    
+
     private void OnTriggerEnter(Collider other)
     {
         target = other.gameObject;
-        if(target.tag =="NPC")
+
+        if (target.tag == "NPC")
         {
-            if(npcCount<capacity){
-                npc=target;
+            if (npcCount < capacity)
+            {
+                npc = target;
                 npc.tag = "Untagged";
                 anim.SetTrigger("Stabling");
                 Invoke("Stable", 0.7f);
-                
             }
-            
         }
-        if(target.tag =="MoneyArea")
+
+        if (target.tag == "MoneyArea")
         {
-            anim.SetTrigger("Throw"); 
-           
-            Invoke("Throw", 0.5f);
-            
-            
+            if (npcCount > 0)
+            {
+                anim.SetTrigger("Throw");
+                Invoke("Throw", 0.5f);
+            }
         }
     }
-    void Throw(){
-        foreach(GameObject npc in npcsDefeats)
-            {
-                rb = npc.GetComponent<Rigidbody>();
-                if(rb!=null){
-                    npc.GetComponent<SmoothCameraFollow>().enabled=false;
-                    npc.GetComponent<Animator>().enabled=false;
-                    //rb.useGravity=true;
-                    Vector3 forceToAdd = transform.forward * 20f +transform.up * 12f;
-                    rb.useGravity=true;
-                    rb.AddForce(forceToAdd, ForceMode.Impulse);
-                    //Vector3 direcaoDoJogador = transform.forward;
-                    //Vector3 vetorDeDeslocamento = direcaoDoJogador * 3;
-                    //npc.transform.Translate(vetorDeDeslocamento, Space.World);
-                    
-                }
-            }
-            Invoke("GainMoney", 1f);
-    }
-    void DestroyNPC()
+
+    void Throw()
     {
-        Destroy(target);
+        foreach (GameObject npc in npcsDefeats)
+        { 
+            Vector3 forceToAdd = transform.forward * 20f + transform.up * 20f;
+            npc.GetComponent<RagDollPhysics>().RagDollEnable(forceToAdd);
+            
+        }
+
+        Invoke("GainMoney", 1f);
     }
 
     void ConfigLevel(int level)
@@ -168,66 +153,66 @@ public class PlayerManager : MonoBehaviour
         {
             case 1:
                 capacity = 1;
-                render.material= materials[0];
-                xp=20;
+                render.material = materials[0];
+                xp = 20;
                 break;
 
             case 2:
                 capacity = 2;
-                render.material= materials[1];
-                xp=40;
+                render.material = materials[1];
+                xp = 40;
                 break;
 
             case 3:
                 capacity = 3;
-                render.material= materials[2];
-                xp=100;
+                render.material = materials[2];
+                xp = 100;
                 break;
 
             default:
                 Debug.LogWarning("Nível desconhecido. Não foi possível configurar.");
                 break;
         }
-        countText.text = npcCount.ToString()+"/"+capacity;
-        moneyCount.text = money.ToString()+"/"+xp;
+
+        countText.text = npcCount.ToString() + "/" + capacity;
+        moneyCount.text = money.ToString() + "/" + xp;
         sliderMoney.maxValue = xp;
         sliderMoney.value = money;
-        levelCount.text = "Level: "+ level.ToString();
-        
+        levelCount.text = "Level: " + level.ToString();
     }
-    public void SetLevel(){
+
+    public void SetLevel()
+    {
         level++;
         ConfigLevel(level);
-        
     }
 
     private void JoinNPCs()
     {
-        //npc.GetComponent<Animator>().enabled=true;
-        //rb.useGravity=false;
         npc.GetComponent<RagDollPhysics>().RagDollDisable();
         npcCount++;
-        countText.text = npcCount.ToString()+"/"+capacity;
+        countText.text = npcCount.ToString() + "/" + capacity;
 
-        if(npcCount==1){
+        if (npcCount == 1)
+        {
             lastTargetY = this.transform.position.y;
             npcsDefeats = new List<GameObject>();
-        }else{
+        }
+        else
+        {
             lastTargetY = lastTarget.position.y;
         }
-        
+
         lastTarget = target.transform;
 
-        
-        Vector3 novaPosicao = new Vector3(target.transform.position.x, lastTargetY +3f, target.transform.position.z);
+        Vector3 novaPosicao = new Vector3(target.transform.position.x, lastTargetY + 3f, target.transform.position.z);
 
-            // Atribua a nova posição ao objeto em cima
         npc.transform.rotation = Quaternion.identity;
         npc.transform.position = novaPosicao;
         npc.GetComponent<Animator>().SetTrigger("Defeat");
-        npc.GetComponent<SmoothCameraFollow>().enabled=true;
+        npc.GetComponent<SmoothCameraFollow>().enabled = true;
         npc.GetComponent<SmoothCameraFollow>().ConfigLevel(npcCount);
         npcsDefeats.Add(npc);
-    }
-    
 }
+}
+

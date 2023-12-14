@@ -45,6 +45,7 @@ public class RagDollPhysics : MonoBehaviour
         anim.enabled = false;
         colliderNpc.enabled = false;
         rbNpc.isKinematic = true;
+        GetComponent<SmoothCameraFollow>().enabled = false;
     }
     public void RagDollDisable()
     {
