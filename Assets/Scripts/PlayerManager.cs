@@ -27,6 +27,7 @@ public class PlayerManager : MonoBehaviour
    Rigidbody rb;
    public List<GameObject> npcsDefeats;
    private Vector3 currentVelocity = Vector3.zero;// Velocidade da suavização
+   GameObject npc;
    void Start()
    {
         // Encontra os componentes
@@ -35,7 +36,7 @@ public class PlayerManager : MonoBehaviour
          Player = GetComponent<UnityEngine.AI.NavMeshAgent>();
          ConfigLevel(level);
          countText.text = npcCount.ToString()+"/"+capacity;
-          //Invoke("teste", 2f);
+        //Invoke("teste", 2f);
          
    }
    private void Update()
@@ -45,7 +46,7 @@ public class PlayerManager : MonoBehaviour
     public void teste(){
         Debug.Log("in");
          //GetComponent<Rigidbody>().AddForce(transform.forward * 150, ForceMode.Impulse);
-         Vector3 direcaoDoJogador = transform.forward;
+        /* Vector3 direcaoDoJogador = transform.forward;
 
         // Calcula a nova posição adicionando o deslocamento à posição atual do jogador
         Vector3 novaPosicao = transform.position + direcaoDoJogador * 5;
@@ -53,7 +54,10 @@ public class PlayerManager : MonoBehaviour
         // Atualiza a posição do jogador para a nova posição
         transform.position = novaPosicao;
         transform.position = Vector3.SmoothDamp(transform.position, novaPosicao, ref currentVelocity, 0.5f);// Suaviza o movimento da câmera
-
+    */
+        //Vector3 forceToAdd = transform.forward * 30f +transform.up * 12f;
+        //rb.useGravity=true;
+        //rb.AddForce(forceToAdd, ForceMode.Impulse);
         
     }
     public void Move(){
@@ -75,7 +79,21 @@ public class PlayerManager : MonoBehaviour
         
     }
     public void Stable(){
-         anim.SetTrigger("Stabling");
+        
+         rb = npc.GetComponent<Rigidbody>();
+         
+        if(rb!=null)
+        {
+            //npc.GetComponent<Animator>().enabled=false;
+            //rb.useGravity=true;
+            //Vector3 forceToAdd = transform.forward * 20f +transform.up * 50;
+            //rb.AddForce(forceToAdd, ForceMode.Impulse);
+            
+            Vector3 forceToAdd = transform.forward * 20f +transform.up * 20;
+            npc.GetComponent<RagDollPhysics>().RagDollEnable(forceToAdd);
+        }
+        
+        Invoke("JoinNPCs", 1f);
     }
     public void GainMoney(){
         if(npcCount>0){
@@ -102,8 +120,11 @@ public class PlayerManager : MonoBehaviour
         if(target.tag =="NPC")
         {
             if(npcCount<capacity){
-                Stable();
-                Invoke("JoinNPCs", 0.7f);
+                npc=target;
+                npc.tag = "Untagged";
+                anim.SetTrigger("Stabling");
+                Invoke("Stable", 0.7f);
+                
             }
             
         }
@@ -123,10 +144,13 @@ public class PlayerManager : MonoBehaviour
                 if(rb!=null){
                     npc.GetComponent<SmoothCameraFollow>().enabled=false;
                     npc.GetComponent<Animator>().enabled=false;
+                    //rb.useGravity=true;
+                    Vector3 forceToAdd = transform.forward * 20f +transform.up * 12f;
                     rb.useGravity=true;
-                    Vector3 direcaoDoJogador = transform.forward;
-                     Vector3 vetorDeDeslocamento = direcaoDoJogador * 3;
-                    npc.transform.Translate(vetorDeDeslocamento, Space.World);
+                    rb.AddForce(forceToAdd, ForceMode.Impulse);
+                    //Vector3 direcaoDoJogador = transform.forward;
+                    //Vector3 vetorDeDeslocamento = direcaoDoJogador * 3;
+                    //npc.transform.Translate(vetorDeDeslocamento, Space.World);
                     
                 }
             }
@@ -179,6 +203,9 @@ public class PlayerManager : MonoBehaviour
 
     private void JoinNPCs()
     {
+        //npc.GetComponent<Animator>().enabled=true;
+        //rb.useGravity=false;
+        npc.GetComponent<RagDollPhysics>().RagDollDisable();
         npcCount++;
         countText.text = npcCount.ToString()+"/"+capacity;
 
@@ -191,16 +218,16 @@ public class PlayerManager : MonoBehaviour
         
         lastTarget = target.transform;
 
-        target.tag = "Untagged";
+        
         Vector3 novaPosicao = new Vector3(target.transform.position.x, lastTargetY +3f, target.transform.position.z);
 
             // Atribua a nova posição ao objeto em cima
-        target.transform.rotation = Quaternion.identity;
-        target.transform.position = novaPosicao;
-        target.GetComponent<Animator>().SetTrigger("Defeat");
-        target.GetComponent<SmoothCameraFollow>().enabled=true;
-        target.GetComponent<SmoothCameraFollow>().ConfigLevel(npcCount);
-        npcsDefeats.Add(target);
+        npc.transform.rotation = Quaternion.identity;
+        npc.transform.position = novaPosicao;
+        npc.GetComponent<Animator>().SetTrigger("Defeat");
+        npc.GetComponent<SmoothCameraFollow>().enabled=true;
+        npc.GetComponent<SmoothCameraFollow>().ConfigLevel(npcCount);
+        npcsDefeats.Add(npc);
     }
     
 }

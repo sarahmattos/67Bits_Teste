@@ -76,14 +76,13 @@ public class PlayerTouchMovement : MonoBehaviour
      // Lida com o primeiro toque
     private void HandleFingerDown(Finger TouchedFinger)
     {
-        if (MovementFinger == null && TouchedFinger.screenPosition.x <= Screen.width / 2f)
-        {
+        
             MovementFinger = TouchedFinger;
             MovementAmount = Vector2.zero;
             Joystick.gameObject.SetActive(true);
             Joystick.RectTransform.sizeDelta = JoystickSize;
             Joystick.RectTransform.anchoredPosition = ClampStartPosition(TouchedFinger.screenPosition);
-        }
+        
     }
 
     // Limita a posição do joystick na tela
