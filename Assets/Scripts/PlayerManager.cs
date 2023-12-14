@@ -158,7 +158,7 @@ public class PlayerManager : MonoBehaviour
             case 1:
                 capacity = 1;
                 render.material = materials[0];
-                backgrounSlider.color = Color.white;
+                backgrounSlider.color =  Color.white;
                 xp = 20;
                 break;
 
@@ -172,7 +172,7 @@ public class PlayerManager : MonoBehaviour
             case 3:
                 capacity = 3;
                 render.material = materials[2];
-                backgrounSlider.color = Color.blue;
+                backgrounSlider.color =new Color(0.6784f, 0.8471f, 0.902f, 1f);
                 xp = 100;
                 break;
 
