@@ -23,6 +23,7 @@ public class PlayerManager : MonoBehaviour
     Transform lastTarget;// Transform do ultimo NPC na pilha
     [HideInInspector] public Vector3 scaledMovement;// Indicador da movimentação
     bool victory;// Condição para vitoria
+    bool waitNpcDies;// Esperar npc jogado cair para se mexer de novo
     List<GameObject> npcsDefeats;// Lista dos NPCs em pilha
 
     // UI
@@ -50,7 +51,7 @@ public class PlayerManager : MonoBehaviour
 
     private void Update()
     {
-        if(!victory)Move();
+        if(!victory && !waitNpcDies)Move();
     }
 
     // Método de movimentação
@@ -160,7 +161,7 @@ public class PlayerManager : MonoBehaviour
             Vector3 forceToAdd = transform.forward * 20f + transform.up * 20f;
             npc.GetComponent<RagDollPhysics>().RagDollEnable(forceToAdd);
         }
-
+        waitNpcDies =true;
         Invoke("GainMoney", 1f);
     }
 
@@ -186,7 +187,7 @@ public class PlayerManager : MonoBehaviour
                 level++;
                 ConfigLevel(level);
             }
-
+            waitNpcDies =false;
             UpdateInfos();
         }
     }
